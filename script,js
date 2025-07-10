@@ -1,0 +1,70 @@
+let students = JSON.parse(localStorage.getItem('students')) || [];
+let editIndex = null;
+
+const form = document.getElementById('student-form');
+const nameInput = document.getElementById('name');
+const rollInput = document.getElementById('roll');
+const classInput = document.getElementById('cls');
+const tableBody = document.querySelector('#student-table tbody');
+
+function saveStudents() {
+  localStorage.setItem('students', JSON.stringify(students));
+}
+
+function renderStudents() {
+  tableBody.innerHTML = '';
+  students.forEach((student, index) => {
+    const row = document.createElement('tr');
+
+    row.innerHTML = `
+      <td>${student.name}</td>
+      <td>${student.roll}</td>
+      <td>${student.cls}</td>
+      <td>
+        <button class="action-btn edit-btn" onclick="editStudent(${index})">Edit</button>
+        <button class="action-btn" onclick="deleteStudent(${index})">Delete</button>
+      </td>
+    `;
+
+    tableBody.appendChild(row);
+  });
+}
+
+function editStudent(index) {
+  const student = students[index];
+  nameInput.value = student.name;
+  rollInput.value = student.roll;
+  classInput.value = student.cls;
+  editIndex = index;
+}
+
+function deleteStudent(index) {
+  if (confirm("Are you sure you want to delete this student?")) {
+    students.splice(index, 1);
+    saveStudents();
+    renderStudents();
+  }
+}
+
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+  const student = {
+    name: nameInput.value,
+    roll: rollInput.value,
+    cls: classInput.value
+  };
+
+  if (editIndex !== null) {
+    students[editIndex] = student;
+    editIndex = null;
+  } else {
+    students.push(student);
+  }
+
+  saveStudents();
+  renderStudents();
+  form.reset();
+});
+
+// Initial load
+renderStudents();
